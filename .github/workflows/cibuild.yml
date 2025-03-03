@@ -1,0 +1,103 @@
+#*******************************************************************************
+# Copyright (c) Contributors to the Eclipse Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+#*******************************************************************************
+
+name: CI Build
+
+on:
+  push:
+    branches-ignore:
+    - 'dependabot/**'
+    paths:
+    - '**'
+    - '!docs/**'
+    - '!.github/**'
+    - '.github/**/*ci*'
+  pull_request:
+    paths:
+    - '**'
+    - '!docs/**'
+    - '!.github/**'
+    - '.github/**/*ci*'
+
+env:
+  LC_ALL: en_US.UTF-8
+  MAVEN_OPTS: >-
+    -Dhttp.keepAlive=false
+    -Dmaven.wagon.http.pool=false
+    -Dmaven.wagon.http.retryHandler.count=3
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        java:
+        - '8'
+        - '11'
+        - '17'
+        os:
+        - 'ubuntu-latest'
+        include:
+        - os: 'ubuntu-latest'
+          java: '21'
+          canonical: ${{ (github.repository == 'eclipse-osgi-technology/plurl-osgi') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/release')) && (github.event_name != 'pull_request') }}
+    name: JDK${{ matrix.java }} ${{ matrix.os }} ${{ matrix.mavenopts }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423
+      with:
+        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+    - name: Git Checkout
+      uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+    - name: Set up Java ${{ matrix.java }}
+      uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+    - name: Build
+      id: build
+      continue-on-error: ${{ matrix.experimental }}
+      run: |
+        ./.github/scripts/ci-build.sh ${{ matrix.mavenopts }}
+    - name: Configure settings.xml for Publish
+      if: ${{ matrix.canonical }}
+      uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2
+      with:
+        distribution: 'temurin'
+        java-version: ${{ matrix.java }}
+        server-id: ossrh
+        server-username: OSSRH_USERNAME
+        server-password: OSSRH_PASSWORD
+        gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+        gpg-passphrase: GPG_PASSPHRASE
+    - name: Publish
+      if: ${{ matrix.canonical }}
+      run: |
+        ./.github/scripts/ci-publish.sh -Possrh
+      env:
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
