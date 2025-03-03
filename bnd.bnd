@@ -1,0 +1,11 @@
+-jpms-module-info: ${project.artifactId};access='OPEN';version=${versionmask;===;${version_cleanup;${project.version}}}
+-jpms-module-info-options: jdk.unsupported;static="true",java.management;ignore="true",openj9.sharedclasses;static="true",j9stubs;ignore="true"
+
+Bundle-SymbolicName: plurl.osgi
+Bundle-Version: 1.0.0
+Require-Capability: \
+ osgi.serviceloader;osgi.serviceloader="java.net.ContentHandlerFactory", \
+ osgi.serviceloader;osgi.serviceloader="java.net.URLStreamHandlerFactory"
+ 
+
+
