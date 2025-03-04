@@ -40,6 +40,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<osgi.annotation.version>8.1.0</osgi.annotation.version>
 		<junit-version>4.13.2</junit-version>
+		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=plurl.osgi --add-opens java.base/java.net=plurl.osgi</add-opens-for-tests>
 	</properties>
 
 	<url>https://www.osgi.org</url>
@@ -251,7 +252,7 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-surefire-plugin</artifactId>
 						<configuration>
-							<argLine>--add-opens java.base/sun.net.www.protocol.jar=plurl.osgi --add-opens java.base/java.net=plurl.osgi</argLine>
+							<argLine>${add-opens-for-tests}</argLine>
 						</configuration>
 						<executions>
 							<execution>
