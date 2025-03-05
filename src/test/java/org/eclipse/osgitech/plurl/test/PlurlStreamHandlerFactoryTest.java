@@ -11,9 +11,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.test;
+package org.eclipse.osgitech.plurl.test;
 
-import static org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.createTestURLStreamHandlerFactory;
+import static org.eclipse.osgitech.plurl.test.PlurlTestHandlers.createTestURLStreamHandlerFactory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.TestFactoryType;
+import org.eclipse.osgitech.plurl.test.PlurlTestHandlers.TestFactoryType;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;

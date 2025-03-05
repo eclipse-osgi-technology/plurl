@@ -11,20 +11,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.impl;
+package org.eclipse.osgitech.plurl.impl;
 
-class SecurityManagerCallStack implements CallStack {
-	// used to get access to the protected SecurityManager#getClassContext method
-	static class InternalSecurityManager extends SecurityManager {
-		@Override
-		public Class<?>[] getClassContext() {
-			return super.getClassContext();
-		}
-	}
-
-	private static InternalSecurityManager internalSecurityManager = new InternalSecurityManager();
-
-	public Class<?>[] getClassContext() {
-		return internalSecurityManager.getClassContext();
-	}
+interface CallStack {
+	Class<?>[] getClassContext();
 }

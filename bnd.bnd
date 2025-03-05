@@ -1,11 +1,10 @@
--jpms-module-info: ${project.artifactId};access='OPEN';version=${versionmask;===;${version_cleanup;${project.version}}}
--jpms-module-info-options: jdk.unsupported;static="true",java.management;ignore="true",openj9.sharedclasses;static="true",j9stubs;ignore="true"
+-jpms-module-info: org.eclipse.osgi-technology.plurl;access='OPEN';version=${versionmask;===;${version_cleanup;${project.version}}}
 
-Bundle-SymbolicName: plurl.osgi
+Bundle-SymbolicName: org.eclipse.osgi-technology.plurl
 Bundle-Version: 1.0.0
+Export-Package: org.eclipse.osgitech.plurl; version="1.0.0"
 Require-Capability: \
  osgi.serviceloader;osgi.serviceloader="java.net.ContentHandlerFactory", \
  osgi.serviceloader;osgi.serviceloader="java.net.URLStreamHandlerFactory"
- 
 
 

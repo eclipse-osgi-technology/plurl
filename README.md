@@ -4,7 +4,7 @@ This workspace repository contains the Plurl library.
 
 ## Contributing
 
-Want to hack on plurl-osgi? See [CONTRIBUTING.md](CONTRIBUTING.md) for information on building, testing and contributing changes.
+Want to hack on plurl? See [CONTRIBUTING.md](CONTRIBUTING.md) for information on building, testing and contributing changes.
 
 They are probably not perfect, please let us know if anything feels
 wrong or incomplete.
@@ -16,11 +16,11 @@ You can use your system `mvn` but we require a recent version.
 
 - `./mvnw clean install` - Assembles and tests the project
 
-[![Build Status](https://github.com/eclipse-osgi-technology/plurl-osgi/workflows/CI%20Build/badge.svg)](https://github.com/eclipse-osgi-technology/plurl-osgi/actions?query=workflow%3A%22CI%20Build%22)
+[![Build Status](https://github.com/eclipse-osgi-technology/plurl-/workflows/CI%20Build/badge.svg)](https://github.com/eclipse-osgi-technology/plurl/actions?query=workflow%3A%22CI%20Build%22)
 
 ## Repository
 
-Snapshot plurl-osgi artifacts are available from the Sonatype OSS snapshot repository:
+Snapshot plurl artifacts are available from the Sonatype OSS snapshot repository:
 
 [https://oss.sonatype.org/content/repositories/snapshots/](https://oss.sonatype.org/content/repositories/snapshots/)
 

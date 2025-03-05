@@ -11,11 +11,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.test;
+package org.eclipse.osgitech.plurl.test;
 
-import static org.eclipse.osgi.technology.plurl.test.PlurlStreamHandlerFactoryTest.checkProtocol;
-import static org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.createTestContentHandlerFactory;
-import static org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.createTestURLStreamHandlerFactory;
+import static org.eclipse.osgitech.plurl.test.PlurlStreamHandlerFactoryTest.checkProtocol;
+import static org.eclipse.osgitech.plurl.test.PlurlTestHandlers.createTestContentHandlerFactory;
+import static org.eclipse.osgitech.plurl.test.PlurlTestHandlers.createTestURLStreamHandlerFactory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -27,10 +27,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.osgi.technology.plurl.test.PlurlStreamHandlerFactoryTest.TesterClass;
-import org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.TestContentHandlerFactory;
-import org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.TestFactoryType;
-import org.eclipse.osgi.technology.plurl.test.PlurlTestHandlers.TestURLStreamHandlerFactory;
+import org.eclipse.osgitech.plurl.test.PlurlStreamHandlerFactoryTest.TesterClass;
+import org.eclipse.osgitech.plurl.test.PlurlTestHandlers.TestContentHandlerFactory;
+import org.eclipse.osgitech.plurl.test.PlurlTestHandlers.TestFactoryType;
+import org.eclipse.osgitech.plurl.test.PlurlTestHandlers.TestURLStreamHandlerFactory;
 import org.junit.After;
 import org.junit.Test;
 

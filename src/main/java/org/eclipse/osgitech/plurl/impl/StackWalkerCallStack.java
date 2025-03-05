@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.impl;
+package org.eclipse.osgitech.plurl.impl;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -48,9 +48,7 @@ class StackWalkerCallStack implements CallStack {
 			tmpGetDeclaringClass = null;
 			// fallback to security manager
 			try {
-				tmpFallback = (CallStack) Class.forName("org.eclipse.equinox.plurl.impl.SecurityManagerStack") //$NON-NLS-1$
-						.getConstructor()
-						.newInstance();
+				tmpFallback = new SecurityManagerCallStack();
 			} catch (Throwable fallbackException) {
 				// this is bad
 				fallbackException.printStackTrace();

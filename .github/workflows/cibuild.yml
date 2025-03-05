@@ -61,7 +61,7 @@ jobs:
         include:
         - os: 'ubuntu-latest'
           java: '21'
-          canonical: ${{ (github.repository == 'eclipse-osgi-technology/plurl-osgi') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/release')) && (github.event_name != 'pull_request') }}
+          canonical: ${{ (github.repository == 'eclipse-osgi-technology/plurl') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/release')) && (github.event_name != 'pull_request') }}
     name: JDK${{ matrix.java }} ${{ matrix.os }} ${{ matrix.mavenopts }}
     runs-on: ${{ matrix.os }}
     steps:

@@ -22,11 +22,11 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.osgi</groupId>
-	<artifactId>plurl.osgi</artifactId>
+	<groupId>org.eclipse.osgi-technology.plurl</groupId>
+	<artifactId>plurl</artifactId>
 	<version>${revision}</version>
 	<description>Plurl API for multiplexing URL handlers</description>
-	<name>plurl.osgi</name>
+	<name>plurl</name>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -40,7 +40,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<osgi.annotation.version>8.1.0</osgi.annotation.version>
 		<junit-version>4.13.2</junit-version>
-		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=plurl.osgi --add-opens java.base/java.net=plurl.osgi</add-opens-for-tests>
+		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=org.eclipse.osgi-technology.plurl --add-opens java.base/java.net=org.eclipse.osgi-technology.plurl</add-opens-for-tests>
 	</properties>
 
 	<url>https://www.osgi.org</url>
@@ -57,9 +57,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/eclipse-osgi-technology/plurl-osgi</url>
-		<connection>scm:git:https://github.com/eclipse-osgi-technology/plurl-osgi.git</connection>
-		<developerConnection>scm:git:git@github.com:eclipse-osgi-technology/plurl-osgi.git</developerConnection>
+		<url>https://github.com/eclipse-osgi-technology/plurl</url>
+		<connection>scm:git:https://github.com/eclipse-osgi-technology/plurl.git</connection>
+		<developerConnection>scm:git:git@github.com:eclipse-osgi-technology/plurl.git</developerConnection>
 		<tag>${revision}</tag>
 	</scm>
 	<developers>
@@ -78,7 +78,7 @@
 	</developers>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/eclipse-osgi-technology/plurl-osgi/issues</url>
+		<url>https://github.com/eclipse-osgi-technology/plurl/issues</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
@@ -114,12 +114,18 @@
 	</dependencies>
 
 	<build>
+		<finalName>org.eclipse.osgi-technology.plurl</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>biz.aQute.bnd</groupId>
 					<artifactId>bnd-maven-plugin</artifactId>
 					<version>6.4.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.4.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -221,6 +227,15 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifestFile>${project.build.directory}/BND.MF</manifestFile>
+					</archive>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
