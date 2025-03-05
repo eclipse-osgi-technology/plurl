@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>plurl-osgi</name>
+	<name>plurl</name>
 	<comment></comment>
 	<projects/>
   <buildSpec>

@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl;
+package org.eclipse.osgitech.plurl;
 
 import java.io.IOException;
 import java.net.ContentHandlerFactory;
@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * <p>
  * The {@link #PLURL_PROTOCOL plurl} protocol allows factories to be added even
  * if the installed plurl implementation is not using the same
- * org.eclipse.equinox.plurl package as the factories being registered. A plurl
+ * org.eclipse.osgitech.plurl package as the factories being registered. A plurl
  * implementation must handle this case by reflecting on the plurl factories
  * that are added. A plurl factory can be added and removed with the plurl
  * protocol like this:

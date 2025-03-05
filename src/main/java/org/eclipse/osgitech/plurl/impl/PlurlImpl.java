@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.impl;
+package org.eclipse.osgitech.plurl.impl;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -44,11 +44,12 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import org.eclipse.osgi.technology.plurl.Plurl;
-import org.eclipse.osgi.technology.plurl.PlurlFactory;
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandler;
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandlerBase;
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandler.PlurlSetter;
+
+import org.eclipse.osgitech.plurl.Plurl;
+import org.eclipse.osgitech.plurl.PlurlFactory;
+import org.eclipse.osgitech.plurl.PlurlStreamHandler;
+import org.eclipse.osgitech.plurl.PlurlStreamHandlerBase;
+import org.eclipse.osgitech.plurl.PlurlStreamHandler.PlurlSetter;
 
 public final class PlurlImpl implements Plurl {
 
@@ -934,7 +935,7 @@ public final class PlurlImpl implements Plurl {
 					+ '\'' + handlerClass.getName() + "'." //$NON-NLS-1$
 					+ " For example, by using the JVM option: '--add-opens java.base/java.net=ALL-UNNAMED'. " //$NON-NLS-1$
 					+ "Another option is to make the class '" + handlerClass.getName() //$NON-NLS-1$
-					+ "' implement the org.eclipse.equinox.purl.PlurlStreamHandler interface."; //$NON-NLS-1$
+					+ "' implement the org.eclipse.osgitech.plurl.PlurlStreamHandler interface."; //$NON-NLS-1$
 		}
 
 		private static Method findMethod(URLStreamHandler h, String methodName, Class<?>... args) {

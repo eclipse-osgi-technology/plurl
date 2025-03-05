@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl;
+package org.eclipse.osgitech.plurl;
 
 /**
  * A plural factory that can be added to a plurl implementation. A plurl

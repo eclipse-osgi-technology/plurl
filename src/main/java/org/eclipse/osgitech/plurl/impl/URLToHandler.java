@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.osgi.technology.plurl.impl;
+package org.eclipse.osgitech.plurl.impl;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandler;
+import org.eclipse.osgitech.plurl.PlurlStreamHandler;
 
 public class URLToHandler {
 	class WeakURL extends WeakReference<URL> {

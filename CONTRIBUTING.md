@@ -1,12 +1,12 @@
-# Contributing to plurl-osgi
+# Contributing to plurl
 
-Want to hack on plurl-osgi? Here are instructions to get you
+Want to hack on plurl? Here are instructions to get you
 started. They are probably not perfect, please let us know if anything
 feels wrong or incomplete.
 
 ## Reporting Issues
 
-When reporting [issues](https://github.com/eclipse-osgi-technology/plurl-osgi/issues) 
+When reporting [issues](https://github.com/eclipse-osgi-technology/plurl/issues) 
 on GitHub please include the steps required to reproduce the problem if possible and applicable.
 This information will help us review and fix your issue faster.
 
@@ -15,29 +15,29 @@ This information will help us review and fix your issue faster.
 The only thing you need to build is Java 8. We use Maven to build and the repo includes `mvnw`.
 You can use your system `mvn` but we require a recent version.
 
-We use [GitHub Actions](https://github.com/eclipse-osgi-technology/plurl-osgi/actions?query=workflow%3A%22CI+Build%22) and the repo includes a
+We use [GitHub Actions](https://github.com/eclipse-osgi-technology/plurl/actions?query=workflow%3A%22CI+Build%22) and the repo includes a
 `.github/workflows/cibuild.yml` file to build via GitHub Actions.
 
 ## Workflow
 
 We use [git triangular workflow](https://www.sociomantic.com/blog/2014/05/git-triangular-workflow/).
-This means that no one, not even the plurl-osgi maintainers, push contributions directly into the [main plurl-osgi
-repo](https://github.com/eclipse-osgi-technology/plurl-osgi). All contribution come in through pull requests.
-So each contribtor will need to [fork the main plurl-osgi repo](https://github.com/eclipse-osgi-technology/plurl-osgi/fork)
+This means that no one, not even the plurl maintainers, push contributions directly into the [main plurl
+repo](https://github.com/eclipse-osgi-technology/plurl). All contribution come in through pull requests.
+So each contribtor will need to [fork the main plurl repo](https://github.com/eclipse-osgi-technology/plurl/fork)
 on GitHub. All contributions are made as commits to your fork. Then you submit a
-pull request to have them considered for merging into the main plurl-osgi repo.
+pull request to have them considered for merging into the main plurl repo.
 
 ### Setting up the triangular workflow
 
-After forking the main plurl-osgi repo on GitHub, you can clone the main repo to your system:
+After forking the main plurl repo on GitHub, you can clone the main repo to your system:
 
-    git clone https://github.com/eclipse-osgi-technology/plurl-osgi.git
+    git clone https://github.com/eclipse-osgi-technology/plurl.git
 
 This will clone the main repo to a local repo on your disk and set up the `origin` remote in Git.
 Next you will set up the the second side of the triangle to your fork repo.
 
-    cd plurl-osgi
-    git remote add fork git@github.com:github-user/plurl-osgi.git
+    cd plurl
+    git remote add fork git@github.com:github-user/plurl.git
 
 Make sure to replace the URL with the SSH URL to your fork repo on GitHub. Then we configure
 the local repo to push your commits to the fork repo.
@@ -69,7 +69,7 @@ received feedback on what to improve.
 ### Create issues...
 
 Any significant improvement should be documented as [a GitHub
-issue](https://github.com/eclipse-osgi-technology/plurl-osgi/issues) before anybody
+issue](https://github.com/eclipse-osgi-technology/plurl/issues) before anybody
 starts working on it.
 
 ### ...but check for existing issues first!
@@ -188,7 +188,7 @@ There are some exceptions to the signing requirement. Currently these are:
 
 ### Merge approval
 
-The plurl-osgi maintainers will review your pull request and, if approved, will merge into
+The plurl maintainers will review your pull request and, if approved, will merge into
 the main repo.
 
 ### How can I become a maintainer?

@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl;
+package org.eclipse.osgitech.plurl;
 
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;

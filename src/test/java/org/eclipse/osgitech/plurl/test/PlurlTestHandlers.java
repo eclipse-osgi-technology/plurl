@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.osgi.technology.plurl.test;
+package org.eclipse.osgitech.plurl.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -36,11 +36,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.eclipse.osgi.technology.plurl.Plurl;
-import org.eclipse.osgi.technology.plurl.PlurlContentHandlerFactory;
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandlerBase;
-import org.eclipse.osgi.technology.plurl.PlurlStreamHandlerFactory;
-import org.eclipse.osgi.technology.plurl.impl.PlurlImpl;
+import org.eclipse.osgitech.plurl.Plurl;
+import org.eclipse.osgitech.plurl.PlurlContentHandlerFactory;
+import org.eclipse.osgitech.plurl.PlurlStreamHandlerBase;
+import org.eclipse.osgitech.plurl.PlurlStreamHandlerFactory;
+import org.eclipse.osgitech.plurl.impl.PlurlImpl;
 
 public class PlurlTestHandlers {
 	public static abstract class TestFactory {
@@ -327,7 +327,7 @@ public class PlurlTestHandlers {
 				if (loadedClass != null) {
 					return loadedClass;
 				}
-				if (name.startsWith("org.eclipse.equinox.plurl.")
+				if (name.startsWith("org.eclipse.osgitech.plurl.")
 						&& !name.equals(TestContentHandlerFactory.class.getName())
 						&& !name.equals(TestURLStreamHandlerFactory.class.getName())
 						&& !name.equals(TestFactory.class.getName())) {
