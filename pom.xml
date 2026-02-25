@@ -40,7 +40,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<osgi.annotation.version>8.1.0</osgi.annotation.version>
 		<junit-version>4.13.2</junit-version>
-		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=org.eclipse.osgi-technology.plurl --add-opens java.base/java.net=org.eclipse.osgi-technology.plurl</add-opens-for-tests>
+		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=org.eclipse.osgi-technology.plurl --add-opens java.base/java.net=org.eclipse.osgi-technology.plurl --add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED</add-opens-for-tests>
 	</properties>
 
 	<url>https://www.osgi.org</url>

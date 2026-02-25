@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2020 IBM Corporation and others.
+ * Copyright (c) 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import org.eclipse.osgitech.plurl.PlurlStreamHandler;
 
 public class URLToHandler {
