@@ -1071,14 +1071,34 @@ public final class PlurlImpl implements Plurl {
 	PlurlStreamHandler newProxyPlurlStreamHandler(URLStreamHandler handler) {
 		Class<?> checkClass = handler.getClass();
 		while (checkClass != null) {
-			for (Class<?> i : checkClass.getInterfaces()) {
-				if (PLURL_STREAM_HANDLER_CLASS_NAME.equals(i.getName())) {
-					for (Method m : i.getMethods()) {
-						if (m.getName().equals("parseURL")) { //$NON-NLS-1$
-							Class<?> plurlStreamHandlerClass = i;
-							Class<?> plurlSetterClass = m.getParameterTypes()[0];
-							return new PlurlStreamHandlerProxy(handler, plurlStreamHandlerClass, plurlSetterClass);
+			for (Class<?> handlerInterfaces : checkClass.getInterfaces()) {
+				// To determine if we can proxy the handler we look for an interface that defines a method
+				// public void parseURL(PlurlSetter plurlSetter, URL u, String spec, int start, int limit);
+				// But we cannot search for it the conventional way because the PlurlSetter may be a different
+				// copy from ours.
+				for (Method m : handlerInterfaces.getMethods()) {
+					if (m.getName().equals("parseURL")) { //$NON-NLS-1$
+						Class<?>[] params = m.getParameterTypes();
+						if (params.length == 5) {
+							// check the first param to see if it is a PlurlSetter candidate
+							Class<?> plurlSetterCandidate = params[0];
+							if (plurlSetterCandidate.isInterface()) {
+								try { 
+									// try finding the appropriate setURL method
+									plurlSetterCandidate.getMethod("setURL", URL.class, String.class, String.class, Integer.TYPE, String.class, String.class,
+											String.class, String.class, String.class);
+								} catch (Exception e) {
+									// move on to the next interface
+									continue;
+								}
+							}
+						} else {
+							// Wrong number of arguments for parseURL; move on to next interface
+							continue;
 						}
+						Class<?> plurlStreamHandlerClass = handlerInterfaces;
+						Class<?> plurlSetterClass = m.getParameterTypes()[0];
+						return new PlurlStreamHandlerProxy(handler, plurlStreamHandlerClass, plurlSetterClass);
 					}
 				}
 			}
