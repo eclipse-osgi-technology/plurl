@@ -123,6 +123,24 @@ public class PlurlTestHandlers {
 		}
 	}
 
+	public static class TestPlurlCopyContentHandlerFactory extends TestContentHandlerFactory
+		implements org.eclipse.osgitech.plurl.test.copy.PlurlContentHandlerFactory {
+
+		public TestPlurlCopyContentHandlerFactory(List<String> mimetypes, Class<?>... shouldHandleClasses) {
+			super(mimetypes, shouldHandleClasses);
+		}
+
+		@Override
+		protected ContentHandler createContentHandlerImpl(String mimetype) {
+			return new TestContentHandler(mimetype);
+		}
+
+		@Override
+		public boolean shouldHandle(Class<?> clazz) {
+			return shouldHandleImpl(clazz);
+		}
+	}
+
 	public static class TestContentHandler extends ContentHandler {
 		private final String mimetype;
 
@@ -176,6 +194,21 @@ public class PlurlTestHandlers {
 		@Override
 		protected URLStreamHandler createURLStreamHandlerImpl(String protocol) {
 			return new TestPlurlStreamHandler(false);
+		}
+
+		@Override
+		public boolean shouldHandle(Class<?> clazz) {
+			return shouldHandleImpl(clazz);
+		}
+	}
+
+	public static class TestPlurlCopyStreamHandlerFactory extends TestURLStreamHandlerFactory implements org.eclipse.osgitech.plurl.test.copy.PlurlStreamHandlerFactory {
+		public TestPlurlCopyStreamHandlerFactory(List<String> protocols, Class<?>... shouldHandleClasses) {
+			super(protocols, shouldHandleClasses);
+		}
+		@Override
+		protected URLStreamHandler createURLStreamHandlerImpl(String protocol) {
+			return new TestPlurlCopyStreamHandler(false);
 		}
 
 		@Override
@@ -281,8 +314,58 @@ public class PlurlTestHandlers {
 		}
 	}
 
+	static class TestPlurlCopyStreamHandler extends org.eclipse.osgitech.plurl.test.copy.PlurlStreamHandlerBase {
+		private final boolean unsupported;
+	
+		public TestPlurlCopyStreamHandler() {
+			this(false);
+		}
+	
+		public TestPlurlCopyStreamHandler(boolean unsupported) {
+			this.unsupported = unsupported;
+		}
+	
+		@Override
+		public URLConnection openConnection(URL u) throws IOException {
+			if (unsupported) {
+				throw new UnsupportedOperationException();
+			}
+			return new URLConnection(u) {
+				@Override
+				public String getContentType() {
+					// for testing purposes just use the test protocol name
+					return u.getProtocol();
+				}
+
+				@Override
+				public void connect() throws IOException {
+					// do nothing
+				}
+
+				@Override
+				public InputStream getInputStream() throws IOException {
+					// just testing
+					return new ByteArrayInputStream(u.getProtocol().getBytes());
+				}
+			};
+		}
+	
+		@Override
+		public void parseURL(PlurlSetter setter, URL u, String spec, int start, int limit) {
+			if (unsupported) {
+				throw new UnsupportedOperationException();
+			}
+			super.parseURL(setter, u, spec, start, limit);
+		}
+
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + '@' + System.identityHashCode(this);
+		}
+	}
+
 	enum TestFactoryType {
-		PLURL_FACTORY, PLURL_PROXY_FACTORY, NOT_PLURL_FACTORY, LEGACY_FACTORY
+		PLURL_FACTORY, PLURL_PROXY_FACTORY, PLURL_COPY_FACTORY, NOT_PLURL_FACTORY, LEGACY_FACTORY
 	}
 	static final boolean CAN_REFLECT_SET_URL_HANDLER;
 	static final String CAN_REFLECT_ON_URL_STREAM_HANDLER;
@@ -375,6 +458,8 @@ public class PlurlTestHandlers {
 			return new TestNotPlurlStreamHandlerFactory(protocols, shouldHandleClasses);
 		case PLURL_PROXY_FACTORY:
 			return createProxyURLHandlerFactory(protocols, shouldHandleClasses);
+		case PLURL_COPY_FACTORY:
+			return new TestPlurlCopyStreamHandlerFactory(protocols, shouldHandleClasses);
 		default:
 			throw new UnsupportedOperationException("Unknown type: " + type);
 		}
@@ -407,6 +492,8 @@ public class PlurlTestHandlers {
 			return new TestNotPlurlContentHandlerFactory(mimetypes, shouldHandleClasses);
 		case PLURL_PROXY_FACTORY:
 			return createProxyContentFactory(mimetypes, shouldHandleClasses);
+		case PLURL_COPY_FACTORY:
+			return new TestPlurlCopyContentHandlerFactory(mimetypes, shouldHandleClasses);
 		default:
 			throw new UnsupportedOperationException("Unknown type: " + type);
 		}
@@ -680,7 +767,7 @@ public class PlurlTestHandlers {
 	}
 
 	static String canReflect(TestFactoryType type) {
-		if (type == TestFactoryType.PLURL_FACTORY || type == TestFactoryType.PLURL_PROXY_FACTORY) {
+		if (type == TestFactoryType.PLURL_FACTORY || type == TestFactoryType.PLURL_PROXY_FACTORY || type == TestFactoryType.PLURL_COPY_FACTORY) {
 			return String.valueOf(true);
 		}
 		return PlurlTestHandlers.CAN_REFLECT_ON_URL_STREAM_HANDLER;

@@ -94,6 +94,11 @@ public class MultiplePlurlInstallWithParentsTests {
 		doTestMultiplePlurlsAddRemoveFactory(TestFactoryType.PLURL_PROXY_FACTORY);
 	}
 
+	@Test
+	public void testAddRemovePlurlCopyFactory() throws IOException {
+		doTestMultiplePlurlsAddRemoveFactory(TestFactoryType.PLURL_COPY_FACTORY);
+	}
+
 	private static void doTestMultiplePlurlsAddRemoveFactory(TestFactoryType type) throws IOException {
 		doAddRemoveFactory(type, //
 				listOfPlurlTestHandlers.get(listOfPlurlTestHandlers.size() - 1), //
@@ -120,6 +125,11 @@ public class MultiplePlurlInstallWithParentsTests {
 		doTestMultiplePlurlsTestURLContext(TestFactoryType.PLURL_PROXY_FACTORY);
 	}
 
+	@Test
+	public void testURLContextPlurlCopyFactory() throws IOException {
+		doTestMultiplePlurlsTestURLContext(TestFactoryType.PLURL_COPY_FACTORY);
+	}
+
 	private static void doTestMultiplePlurlsTestURLContext(TestFactoryType type) throws IOException {
 		doTestURLContext(type, //
 				listOfPlurlTestHandlers.get(listOfPlurlTestHandlers.size() - 1), //
@@ -144,6 +154,11 @@ public class MultiplePlurlInstallWithParentsTests {
 	@Test
 	public void testContentProxyFactory() throws IOException {
 		doTestMultiplePlurlsContent(TestFactoryType.PLURL_PROXY_FACTORY);
+	}
+
+	@Test
+	public void testContentPlurlCopyFactory() throws IOException {
+		doTestMultiplePlurlsContent(TestFactoryType.PLURL_COPY_FACTORY);
 	}
 
 	private static void doTestMultiplePlurlsContent(TestFactoryType type) throws IOException {

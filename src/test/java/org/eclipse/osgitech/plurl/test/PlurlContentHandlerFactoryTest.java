@@ -106,6 +106,11 @@ public class PlurlContentHandlerFactoryTest
 		doAddRemoveFactory(TestFactoryType.PLURL_PROXY_FACTORY);
 	}
 
+	@Test
+	public void testAddRemovePlurlCopyFactory() throws IOException {
+		doAddRemoveFactory(TestFactoryType.PLURL_COPY_FACTORY);
+	}
+
 	private void doAddRemoveFactory(TestFactoryType type) throws IOException {
 		assumeThat(canReflect(type), is(String.valueOf(true)));
 
@@ -180,6 +185,11 @@ public class PlurlContentHandlerFactoryTest
 		doTestGCURLFactory(TestFactoryType.PLURL_PROXY_FACTORY);
 	}
 
+	@Test
+	public void testGCPlurlCopyFactory() throws IOException {
+		doTestGCURLFactory(TestFactoryType.PLURL_COPY_FACTORY);
+	}
+
 	private void doTestGCURLFactory(TestFactoryType type) throws IOException {
 		assumeThat(canReflect(type), is(String.valueOf(true)));
 
@@ -224,6 +234,11 @@ public class PlurlContentHandlerFactoryTest
 	@Test
 	public void testContentProxyFactory() throws IOException {
 		doTestContentContext(TestFactoryType.PLURL_PROXY_FACTORY, plurlTestHandlers, null);
+	}
+
+	@Test
+	public void testContentPlurlCopyFactory() throws IOException {
+		doTestContentContext(TestFactoryType.PLURL_COPY_FACTORY, plurlTestHandlers, null);
 	}
 
 	static void doTestContentContext(TestFactoryType type, PlurlTestHandlers handlersToUse,
