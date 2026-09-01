@@ -79,4 +79,4 @@ jobs:
       run: |
         ./.github/scripts/codeql-build.sh
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@0d579ffd059c29b07949a3cce3983f0780820c98
+      uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938
