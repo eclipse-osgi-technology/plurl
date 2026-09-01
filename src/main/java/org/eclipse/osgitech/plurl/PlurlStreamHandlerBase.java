@@ -143,8 +143,8 @@ public abstract class PlurlStreamHandlerBase extends URLStreamHandler implements
 	 * 
 	 * @see "java.net.URLStreamHandler.setURL(URL,String,String,int,String,String)"
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
+	@Deprecated
 	public void setURL(URL u, String proto, String host, int port, String file, String ref) {
 		PlurlSetter current = plurlSetter;
 		if (current == null) {

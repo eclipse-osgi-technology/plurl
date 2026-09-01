@@ -1250,8 +1250,8 @@ public final class PlurlImpl implements Plurl {
 			invoke(setURL, u, protocol, host, port, authority, userInfo, path, query, ref);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
+		@Deprecated
 		public void setURL(URL u, String protocol, String host, int port, String file, String ref) {
 			invoke(setURLDeprecated, u, protocol, host, port, file, ref);
 		}
