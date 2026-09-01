@@ -56,12 +56,10 @@ jobs:
         - '8'
         - '11'
         - '17'
+        - '21'
+        - '25'
         os:
         - 'ubuntu-latest'
-        include:
-        - os: 'ubuntu-latest'
-          java: '21'
-          canonical: ${{ (github.repository == 'eclipse-osgi-technology/plurl') && ((github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/release')) && (github.event_name != 'pull_request') }}
     name: JDK${{ matrix.java }} ${{ matrix.os }} ${{ matrix.mavenopts }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -83,7 +81,11 @@ jobs:
       run: |
         ./.github/scripts/ci-build.sh ${{ matrix.mavenopts }}
     - name: Configure settings.xml for Publish
-      if: ${{ matrix.canonical }}
+      if: >-
+        ${{ matrix.java == '25' &&
+            github.repository == 'eclipse-osgi-technology/plurl' &&
+            (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release') &&
+            github.event_name != 'pull_request' }}
       uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
       with:
         distribution: 'temurin'
@@ -94,7 +96,11 @@ jobs:
         gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
         gpg-passphrase: GPG_PASSPHRASE
     - name: Publish
-      if: ${{ matrix.canonical }}
+      if: >-
+        ${{ matrix.java == '25' &&
+            github.repository == 'eclipse-osgi-technology/plurl' &&
+            (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release') &&
+            github.event_name != 'pull_request' }}
       run: |
         ./.github/scripts/ci-publish.sh -Possrh
       env:
