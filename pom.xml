@@ -22,6 +22,13 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>org.eclipse.osgi-technology</groupId>
+		<artifactId>org.eclipse.osgi-technology.pom.parent</artifactId>
+		<version>0.0.1</version>
+		<relativePath/>
+	</parent>
+
 	<groupId>org.eclipse.osgi-technology.plurl</groupId>
 	<artifactId>plurl</artifactId>
 	<version>${revision}</version>
@@ -32,12 +39,12 @@
 	<properties>
 		<!-- Version also in @Version in package-info.java -->
 		<revision>0.1.0-SNAPSHOT</revision>
-		<project.build.outputTimestamp>1980-02-01T00:00:00Z</project.build.outputTimestamp>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<java.release>8</java.release>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<!-- bnd 7.x needs JDK 17+ to run; stay on 6.x so the build still works on JDK 8 -->
+		<bnd.version>6.4.0</bnd.version>
 		<osgi.annotation.version>8.1.0</osgi.annotation.version>
 		<junit-version>4.13.2</junit-version>
 		<add-opens-for-tests>--add-opens java.base/sun.net.www.protocol.jar=org.eclipse.osgi-technology.plurl --add-opens java.base/java.net=org.eclipse.osgi-technology.plurl --add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED</add-opens-for-tests>
@@ -118,96 +125,13 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>biz.aQute.bnd</groupId>
-					<artifactId>bnd-maven-plugin</artifactId>
-					<version>6.4.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.5.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.6</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.4.0</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.12.0</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
 					<configuration>
 						<detectJavaApiLink>false</detectJavaApiLink>
 						<doclint>none</doclint>
 						<notimestamp>true</notimestamp>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-gpg-plugin</artifactId>
-					<version>3.2.8</version>
-					<executions>
-						<execution>
-							<id>sign-artifacts</id>
-							<phase>verify</phase>
-							<goals>
-								<goal>sign</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.sonatype.plugins</groupId>
-					<artifactId>nexus-staging-maven-plugin</artifactId>
-					<version>1.7.0</version>
-					<extensions>true</extensions>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>flatten-maven-plugin</artifactId>
-					<version>1.8.0</version>
-					<configuration>
-						<flattenMode>oss</flattenMode>
-					</configuration>
-					<executions>
-						<execution>
-							<id>flatten</id>
-							<phase>process-resources</phase>
-							<goals>
-								<goal>flatten</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>flatten-clean</id>
-							<phase>clean</phase>
-							<goals>
-								<goal>clean</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -216,34 +140,22 @@
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
 				<executions>
+					<!-- no tests.bnd / test fragment in this project -->
 					<execution>
-						<id>bnd-process</id>
-						<goals>
-							<goal>bnd-process</goal>
-						</goals>
-						<configuration>
-							<packagingTypes>jar</packagingTypes>
-							<manifestPath>${project.build.directory}/BND.MF</manifestPath>
-						</configuration>
+						<id>bnd-process-tests</id>
+						<phase>none</phase>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestFile>${project.build.directory}/BND.MF</manifestFile>
-					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>test-jar</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -302,37 +214,6 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>
-		<profile>
-			<id>ossrh</id>
-			<properties>
-				<skipTests>true</skipTests>
-				<maven.test.skip>true</maven.test.skip>
-				<bnd.baseline.skip>true</bnd.baseline.skip>
-				<bnd.resolve.skip>true</bnd.resolve.skip>
-			</properties>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.sonatype.plugins</groupId>
-						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<configuration>
-							<serverId>ossrh</serverId>
-							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-			<distributionManagement>
-				<snapshotRepository>
-					<id>ossrh</id>
-					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-				</snapshotRepository>
-			</distributionManagement>
 		</profile>
 	</profiles>
 
