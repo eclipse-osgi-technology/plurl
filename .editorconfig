@@ -15,3 +15,9 @@ charset = utf-8
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
+
+# Markdown prose mixes tabs/spaces intentionally; do not enforce indentation here
+[CONTRIBUTING.md]
+indent_style = unset
+indent_size = unset
+trim_trailing_whitespace = unset
