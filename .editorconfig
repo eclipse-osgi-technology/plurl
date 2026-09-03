@@ -11,3 +11,7 @@ indent_style = tab
 indent_size = 4
 # Set default charset
 charset = utf-8
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2

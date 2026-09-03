@@ -15,8 +15,10 @@ This information will help us review and fix your issue faster.
 The only thing you need to build is Java 8. We use Maven to build and the repo includes `mvnw`.
 You can use your system `mvn` but we require a recent version.
 
-We use [GitHub Actions](https://github.com/eclipse-osgi-technology/plurl/actions?query=workflow%3A%22CI+Build%22) and the repo includes a
-`.github/workflows/cibuild.yml` file to build via GitHub Actions.
+We use [GitHub Actions](https://github.com/eclipse-osgi-technology/plurl/actions) to build. The repo includes
+`.github/workflows/cibuild.yml`, which builds on a matrix of JDK versions, plus the shared
+`java_*.yml` and `all_*.yml` workflows of the [Eclipse OSGi Technology](https://github.com/eclipse-osgi-technology/.github)
+project (build, javadoc check, license header and editorconfig checks, Eclipse IP check, and deployment from `main`).
 
 ## Workflow
 
