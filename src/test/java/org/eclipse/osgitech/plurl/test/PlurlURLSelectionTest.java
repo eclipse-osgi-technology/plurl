@@ -38,7 +38,7 @@ import org.junit.Test;
  * identified by an id in the URL host. Such a URL can also be used by a caller that
  * no factory recognises from the call stack, which leaves nothing to select on.
  *
- * @see org.eclipse.osgitech.plurl.PlurlFactory#shouldHandle(String, String)
+ * @see org.eclipse.osgitech.plurl.PlurlStreamHandlerFactory#shouldHandleURL(String, String)
  */
 @SuppressWarnings("nls")
 public class PlurlURLSelectionTest {
@@ -61,7 +61,7 @@ public class PlurlURLSelectionTest {
 		}
 
 		@Override
-		public boolean shouldHandle(String protocol, String spec) {
+		public boolean shouldHandleURL(String protocol, String spec) {
 			return PROTOCOL.equals(protocol) && owner.equals(hostOf(spec));
 		}
 

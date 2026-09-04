@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.osgitech.plurl.Plurl;
@@ -52,6 +53,24 @@ public class PlurlTestHandlers {
 		protected final List<String> TYPES;
 		protected final AtomicBoolean shouldHandle = new AtomicBoolean(false);
 		protected final Set<Class<?>> shouldHandleClasses = new HashSet<>();
+		// Protocols this factory claims by the URL being parsed, whoever the caller is.
+		protected final Set<String> takeOverProtocols = new HashSet<>();
+		// How many handlers this factory has been asked for, so a test can tell which
+		// factory a URL was actually routed to.
+		protected final AtomicInteger handlersCreated = new AtomicInteger();
+
+		/** Claim these protocols by URL, regardless of the calling class. */
+		public void takeOver(String... protocols) {
+			takeOverProtocols.addAll(Arrays.asList(protocols));
+		}
+
+		public int getHandlersCreated() {
+			return handlersCreated.get();
+		}
+
+		protected boolean shouldHandleURLImpl(String protocol, String spec) {
+			return takeOverProtocols.contains(protocol);
+		}
 
 		public TestFactory(List<String> protocols, Class<?>... shouldHandleClasses) {
 			this.TYPES = protocols;
@@ -73,7 +92,8 @@ public class PlurlTestHandlers {
 		public String toString() {
 			return getClass().getSimpleName() + '@' + System.identityHashCode(this) + '[' + TYPES + ','
 					+ shouldHandle + ','
-					+ shouldHandleClasses.stream().map(Class::getSimpleName).collect(Collectors.toList()) + ']';
+					+ shouldHandleClasses.stream().map(Class::getSimpleName).collect(Collectors.toList()) + ','
+					+ takeOverProtocols + ']';
 		}
 	}
 
@@ -166,6 +186,7 @@ public class PlurlTestHandlers {
 		@Override
 		public URLStreamHandler createURLStreamHandler(String protocol) {
 			if (supports(protocol)) {
+				handlersCreated.incrementAndGet();
 				return createURLStreamHandlerImpl(protocol);
 			}
 			return null;
@@ -180,7 +201,7 @@ public class PlurlTestHandlers {
 		public TestNotPlurlStreamHandlerFactory(List<String> protocols, Class<?>... shouldHandleClasses) {
 			super(protocols, shouldHandleClasses);
 		}
-	
+
 		protected URLStreamHandler createURLStreamHandlerImpl(String protocol) {
 			return new TestNotPlurlStreamHandler();
 		}
@@ -188,12 +209,21 @@ public class PlurlTestHandlers {
 		public boolean hasAuthority(Class<?> clazz) {
 			return shouldHandleImpl(clazz);
 		}
+
+		public boolean shouldHandleURL(String protocol, String spec) {
+			return shouldHandleURLImpl(protocol, spec);
+		}
 	}
 
 
 	public static class TestPlurlStreamHandlerFactory extends TestURLStreamHandlerFactory implements PlurlStreamHandlerFactory {
 		public TestPlurlStreamHandlerFactory(List<String> protocols, Class<?>... shouldHandleClasses) {
 			super(protocols, shouldHandleClasses);
+		}
+
+		@Override
+		public boolean shouldHandleURL(String protocol, String spec) {
+			return shouldHandleURLImpl(protocol, spec);
 		}
 		@Override
 		protected URLStreamHandler createURLStreamHandlerImpl(String protocol) {
@@ -219,6 +249,11 @@ public class PlurlTestHandlers {
 		public boolean shouldHandle(Class<?> clazz) {
 			return shouldHandleImpl(clazz);
 		}
+
+		@Override
+		public boolean shouldHandleURL(String protocol, String spec) {
+			return shouldHandleURLImpl(protocol, spec);
+		}
 	}
 
 	static class CatchAllPlurlFactory extends TestURLStreamHandlerFactory implements PlurlStreamHandlerFactory {
@@ -226,7 +261,7 @@ public class PlurlTestHandlers {
 			super(Arrays.asList(protos));
 			shouldHandle.set(true);
 		}
-	
+
 		@Override
 		protected URLStreamHandler createURLStreamHandlerImpl(String protocol) {
 			return new TestPlurlStreamHandler(true);
@@ -270,15 +305,15 @@ public class PlurlTestHandlers {
 
 	static class TestPlurlStreamHandler extends PlurlStreamHandlerBase {
 		private final boolean unsupported;
-	
+
 		public TestPlurlStreamHandler() {
 			this(false);
 		}
-	
+
 		public TestPlurlStreamHandler(boolean unsupported) {
 			this.unsupported = unsupported;
 		}
-	
+
 		@Override
 		public URLConnection openConnection(URL u) throws IOException {
 			if (unsupported) {
@@ -303,7 +338,7 @@ public class PlurlTestHandlers {
 				}
 			};
 		}
-	
+
 		@Override
 		public void parseURL(PlurlSetter setter, URL u, String spec, int start, int limit) {
 			if (unsupported) {
@@ -320,15 +355,15 @@ public class PlurlTestHandlers {
 
 	static class TestPlurlCopyStreamHandler extends org.eclipse.osgitech.plurl.test.copy.PlurlStreamHandlerBase {
 		private final boolean unsupported;
-	
+
 		public TestPlurlCopyStreamHandler() {
 			this(false);
 		}
-	
+
 		public TestPlurlCopyStreamHandler(boolean unsupported) {
 			this.unsupported = unsupported;
 		}
-	
+
 		@Override
 		public URLConnection openConnection(URL u) throws IOException {
 			if (unsupported) {
@@ -353,7 +388,7 @@ public class PlurlTestHandlers {
 				}
 			};
 		}
-	
+
 		@Override
 		public void parseURL(PlurlSetter setter, URL u, String spec, int start, int limit) {
 			if (unsupported) {

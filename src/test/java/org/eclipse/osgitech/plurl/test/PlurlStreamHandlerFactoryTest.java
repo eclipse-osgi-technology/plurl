@@ -20,6 +20,7 @@ package org.eclipse.osgitech.plurl.test;
 import static org.eclipse.osgitech.plurl.test.PlurlTestHandlers.canReflect;
 import static org.eclipse.osgitech.plurl.test.PlurlTestHandlers.createTestURLStreamHandlerFactory;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 
@@ -171,6 +172,7 @@ public class PlurlStreamHandlerFactoryTest
 		final String TEST_PROTOCOL1 = "testprotocol1";
 		final String TEST_PROTOCOL2 = "testprotocol2";
 		final String TEST_PROTOCOL3 = "testprotocol3";
+		final String TEST_PROTOCOL4 = "testprotocol4";
 
 		PlurlTestHandlers.TestURLStreamHandlerFactory testFactory1 = createTestURLStreamHandlerFactory(type,
 				Arrays.asList(TEST_PROTOCOL1, TEST_PROTOCOL2), TesterClass1.class);
@@ -185,6 +187,17 @@ public class PlurlStreamHandlerFactoryTest
 				TEST_PROTOCOL2, TEST_PROTOCOL3);
 		handlersToUse.add(type, catchAll);
 
+		// A fourth protocol served by two factories: one that claims it by calling
+		// class the way the factories above do, and one that takes it over by URL.
+		PlurlTestHandlers.TestURLStreamHandlerFactory byClassFactory = createTestURLStreamHandlerFactory(type,
+				Collections.singletonList(TEST_PROTOCOL4), TesterClass1.class);
+		handlersToUse.add(type, byClassFactory);
+
+		PlurlTestHandlers.TestURLStreamHandlerFactory takeOverFactory = createTestURLStreamHandlerFactory(type,
+				Collections.singletonList(TEST_PROTOCOL4));
+		takeOverFactory.takeOver(TEST_PROTOCOL4);
+		handlersToUse.add(type, takeOverFactory);
+
 		if (handlersToUninstall != null) {
 			handlersToUninstall.uninstall(false);
 		}
@@ -197,6 +210,21 @@ public class PlurlStreamHandlerFactoryTest
 		checkProtocol(t2, testFactory2.TYPES, true);
 		checkProtocol(t2, Collections.singletonList(TEST_PROTOCOL1), false);
 
+		// The taken over protocol resolves from both contexts, including the one whose
+		// class no factory for that protocol claims. Only selection by URL can do
+		// that: by call stack, t2 selects testFactory2, which does not serve it.
+		checkProtocol(t1, Collections.singletonList(TEST_PROTOCOL4), true);
+		checkProtocol(t2, Collections.singletonList(TEST_PROTOCOL4), true);
+
+		// And it was served by the factory that took it over, not by the one that
+		// claims the same protocol by calling class.
+		assertEquals("the factory that took over the protocol served it", true,
+				takeOverFactory.getHandlersCreated() > 0);
+		assertEquals("the factory claiming by class was not used for the taken over protocol", 0,
+				byClassFactory.getHandlersCreated());
+
+		// Selection by call stack still works for the other protocols while a factory
+		// has taken one over.
 		checkProtocolContext(t1, t2, testFactory1.TYPES, testFactory2.TYPES);
 	}
 
