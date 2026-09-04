@@ -1168,7 +1168,7 @@ public final class PlurlImpl implements Plurl {
 							// check the first param to see if it is a PlurlSetter candidate
 							Class<?> plurlSetterCandidate = params[0];
 							if (plurlSetterCandidate.isInterface()) {
-								try { 
+								try {
 									// try finding the appropriate setURL method
 									plurlSetterCandidate.getMethod("setURL", URL.class, String.class, String.class, Integer.TYPE, String.class, String.class,
 											String.class, String.class, String.class);
