@@ -44,6 +44,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -813,7 +814,11 @@ public final class PlurlImpl implements Plurl {
 	}
 
 	PlurlStreamHandler findPlurlStreamHandler(String protocol) {
-		URLStreamHandlerFactoryHolder f = findFactory(getURLStreamHandlerFactories());
+		return findPlurlStreamHandler(protocol, null);
+	}
+
+	PlurlStreamHandler findPlurlStreamHandler(String protocol, String spec) {
+		URLStreamHandlerFactoryHolder f = findFactory(getURLStreamHandlerFactories(), protocol, spec);
 		if (f != null) {
 			return f.getHandler(protocol);
 		}
@@ -821,10 +826,25 @@ public final class PlurlImpl implements Plurl {
 	}
 
 	private <F> F findFactory(List<F> factories) {
+		return findFactory(factories, null, null);
+	}
+
+	private <F> F findFactory(List<F> factories, String protocol, String spec) {
 		int numFactories = factories.size();
 		if (numFactories == 1) {
 			// Handle common case of only one; just use it
 			return factories.get(0);
+		}
+		// Give the factories a chance to claim the URL being parsed first. A protocol
+		// may be shared by several factories that can only be told apart by the URL,
+		// and the URL may be used by a caller no factory recognises from the call
+		// stack.
+		if (spec != null) {
+			for (F f : factories) {
+				if (shouldHandleSpec(f, protocol, spec)) {
+					return f;
+				}
+			}
 		}
 		Class<?>[] callStackClasses = getCallStack();
 		for (Class<?> stack : callStackClasses) {
@@ -853,6 +873,39 @@ public final class PlurlImpl implements Plurl {
 		// This means the root or "first" factory may provide protocol handlers for call stacks
 		// that have no classes known to that factory
 		return numFactories > 0 ? factories.get(0) : null;
+	}
+
+	private <F> boolean shouldHandleSpec(F f, String protocol, String spec) {
+		if (f instanceof PlurlFactory) {
+			return ((PlurlFactory) f).shouldHandle(protocol, spec);
+		}
+		// use reflection in case this Plurl package isn't visible to the factory impl,
+		// and tolerate factories that predate this method
+		Method m = findShouldHandleSpec(f.getClass());
+		if (m == null) {
+			return false;
+		}
+		try {
+			return (boolean) m.invoke(f, protocol, spec);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private final Map<Class<?>, Optional<Method>> shouldHandleSpecMethods = new ConcurrentHashMap<>();
+
+	Method findShouldHandleSpec(Class<?> clazz) {
+		// Cached: this is on the URL parsing path, and a missing method must not cost
+		// a reflective lookup and an exception every time.
+		return shouldHandleSpecMethods.computeIfAbsent(clazz, (c) -> {
+			try {
+				Method m = c.getMethod("shouldHandle", String.class, String.class); //$NON-NLS-1$
+				m.setAccessible(true);
+				return Optional.of(m);
+			} catch (NoSuchMethodException e) {
+				return Optional.empty();
+			}
+		}).orElse(null);
 	}
 
 	Method findShouldHandle(Class<?> clazz) throws NoSuchMethodException {
@@ -942,6 +995,17 @@ public final class PlurlImpl implements Plurl {
 				}
 			}
 			return ((PlurlFactory) f).shouldHandle(clazz);
+		}
+
+		@Override
+		public boolean shouldHandle(String protocol, String spec) {
+			F f = factory.get();
+			if (f == null) {
+				return false;
+			}
+			// not resolved in the constructor like shouldHandle(Class): a factory is
+			// not required to have this method, so it is looked up (and cached) lazily
+			return shouldHandleSpec(f, protocol, spec);
 		}
 
 		H getHandler(String type) {
@@ -1415,17 +1479,21 @@ public final class PlurlImpl implements Plurl {
 		private final AtomicReference<PlurlStreamHandler> builtin = new AtomicReference<>();
 
 		private PlurlStreamHandler lookupPlurlStreamHandler(URL u) {
+			return lookupPlurlStreamHandler(u, null);
+		}
+
+		private PlurlStreamHandler lookupPlurlStreamHandler(URL u, String spec) {
 			if (u != null && isMultiplexing(getURLStreamHandlerFactories())) {
 				// Record the handler found for the URL;
 				// This allows to consistently use the same handler for the
 				// life of the URL object when we are multiplexing.
-				return urlToHandler.get(u, this::findPlurlStreamHandlerImpl);
+				return urlToHandler.get(u, () -> findPlurlStreamHandlerImpl(spec));
 			}
-			return findPlurlStreamHandlerImpl();
+			return findPlurlStreamHandlerImpl(spec);
 		}
 
-		private PlurlStreamHandler findPlurlStreamHandlerImpl() {
-			PlurlStreamHandler h = findPlurlStreamHandler(protocol);
+		private PlurlStreamHandler findPlurlStreamHandlerImpl(String spec) {
+			PlurlStreamHandler h = findPlurlStreamHandler(protocol, spec);
 			if (h == null) {
 				h = findBuiltin();
 				if (h == null) {
@@ -1488,7 +1556,7 @@ public final class PlurlImpl implements Plurl {
 
 		@Override
 		protected void parseURL(URL u, String spec, int start, int limit) {
-			PlurlStreamHandler h = lookupPlurlStreamHandler(u);
+			PlurlStreamHandler h = lookupPlurlStreamHandler(u, spec);
 			if (setHandler(u, h)) {
 				h.parseURL(null, u, spec, start, limit);
 			} else {
