@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.function.Consumer;
+import java.net.URLStreamHandlerFactory;
 
 import org.eclipse.osgitech.plurl.Plurl;
 import org.eclipse.osgitech.plurl.PlurlStreamHandlerBase;
@@ -68,6 +70,23 @@ public class PlurlURLSelectionTest {
 		@Override
 		public URLStreamHandler createURLStreamHandler(String protocol) {
 			return PROTOCOL.equals(protocol) ? new OwnerHandler(owner) : null;
+		}
+	}
+
+	/**
+	 * A factory that predates {@code shouldHandleURL}, as one compiled against an
+	 * older plurl would be: it has the required {@code shouldHandle(Class)} and no
+	 * URL selection method at all. It must still register and take part in selection
+	 * by call stack, and simply never claim by URL.
+	 */
+	static class PredatesURLSelectionFactory implements URLStreamHandlerFactory {
+		public boolean shouldHandle(Class<?> clazz) {
+			return PlurlURLSelectionTest.class.equals(clazz);
+		}
+
+		@Override
+		public URLStreamHandler createURLStreamHandler(String protocol) {
+			return PROTOCOL.equals(protocol) ? new OwnerHandler("predates") : null;
 		}
 	}
 
@@ -153,5 +172,50 @@ public class PlurlURLSelectionTest {
 	public void reparsedUrlIsServedByItsOwner() throws IOException {
 		URL url = new URL(PROTOCOL + "://second/resource");
 		assertEquals("second", new URL(url.toExternalForm()).getContent());
+	}
+
+	/**
+	 * A factory with no URL selection method must not stop one that has it from
+	 * claiming its URL. Registered first, so it would win any tie, and reached
+	 * through the reflective path since it does not implement PlurlStreamHandlerFactory.
+	 */
+	@Test
+	public void factoryPredatingUrlSelectionDoesNotClaim() throws IOException {
+		PredatesURLSelectionFactory predates = new PredatesURLSelectionFactory();
+		addRawFactory(predates);
+		try {
+			assertEquals("second", new URL(PROTOCOL + "://second/resource").getContent());
+		} finally {
+			removeRawFactory(predates);
+		}
+	}
+
+	/**
+	 * And it still takes part in selection by call stack, which is the only way it
+	 * can be chosen. Asserted through a host no other factory owns.
+	 */
+	@Test
+	public void factoryPredatingUrlSelectionStillSelectedByCallStack() throws IOException {
+		PredatesURLSelectionFactory predates = new PredatesURLSelectionFactory();
+		addRawFactory(predates);
+		try {
+			assertEquals("predates", new URL(PROTOCOL + "://unclaimed/resource").getContent());
+		} finally {
+			removeRawFactory(predates);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void addRawFactory(URLStreamHandlerFactory f) throws IOException {
+		// A factory that is not a PlurlStreamHandlerFactory registers through the
+		// protocol, which is how a copy from another plurl version would arrive.
+		((Consumer<URLStreamHandlerFactory>) new URL(Plurl.PLURL_PROTOCOL, Plurl.PLURL_OP,
+				Plurl.PLURL_ADD_URL_STREAM_HANDLER_FACTORY).openConnection().getContent()).accept(f);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void removeRawFactory(URLStreamHandlerFactory f) throws IOException {
+		((Consumer<URLStreamHandlerFactory>) new URL(Plurl.PLURL_PROTOCOL, Plurl.PLURL_OP,
+				Plurl.PLURL_REMOVE_URL_STREAM_HANDLER_FACTORY).openConnection().getContent()).accept(f);
 	}
 }
