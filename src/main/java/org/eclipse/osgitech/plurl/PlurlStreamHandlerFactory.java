@@ -49,7 +49,7 @@ public interface PlurlStreamHandlerFactory extends URLStreamHandlerFactory, Plur
 	 * Several parties may share one protocol and be distinguishable only by the URL
 	 * itself, for example multiple instances of the same framework where the owner is
 	 * identified by an id in the URL host. Such a URL may also be used by a caller
-	 * that no factory recognises from the call stack, leaving nothing else to select
+	 * that no factory recognizes from the call stack, leaving nothing else to select
 	 * on.
 	 * <p>
 	 * The spec is used rather than a {@code URL}, because selection happens while the

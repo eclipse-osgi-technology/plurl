@@ -18,11 +18,11 @@
 package org.eclipse.osgitech.plurl.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 
 import org.eclipse.osgitech.plurl.Plurl;
 import org.eclipse.osgitech.plurl.impl.PlurlImpl;
@@ -42,7 +42,7 @@ public class PlurlCapabilitiesTest {
 		Plurl plurl = new PlurlImpl();
 		plurl.install(Plurl.PLURL_FORBID_NOTHING);
 		try {
-			assertEquals("selection by spec is supported", Boolean.TRUE,
+			assertEquals("selection by spec is supported", Optional.of(Boolean.TRUE),
 					Plurl.getCapability(Plurl.PLURL_CAPABILITY_SELECT_BY_SPEC));
 		} finally {
 			plurl.uninstall();
@@ -58,7 +58,8 @@ public class PlurlCapabilitiesTest {
 		Plurl plurl = new PlurlImpl();
 		plurl.install(Plurl.PLURL_FORBID_NOTHING);
 		try {
-			assertNull("an unknown capability is not claimed", Plurl.getCapability("somethingElseEntirely"));
+			assertEquals("an unknown capability is not claimed", Optional.empty(),
+					Plurl.getCapability("somethingElseEntirely"));
 		} finally {
 			plurl.uninstall();
 		}
