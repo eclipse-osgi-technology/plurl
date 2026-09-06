@@ -36,7 +36,7 @@ import org.junit.Test;
  * Several parties may share one protocol and be distinguishable only by the URL
  * itself, for example multiple instances of the same framework where the owner is
  * identified by an id in the URL host. Such a URL can also be used by a caller that
- * no factory recognises from the call stack, which leaves nothing to select on.
+ * no factory recognizes from the call stack, which leaves nothing to select on.
  *
  * @see org.eclipse.osgitech.plurl.PlurlStreamHandlerFactory#shouldHandleURL(String, String)
  */

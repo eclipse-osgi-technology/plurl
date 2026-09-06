@@ -22,6 +22,7 @@ import java.net.ContentHandlerFactory;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandlerFactory;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -345,14 +346,13 @@ public interface Plurl {
 
 	/**
 	 * Returns the value of the named capability of the {@link #install installed}
-	 * plurl implementation, or <code>null</code> if it does not have it.
+	 * plurl implementation, or an empty {@link Optional} if it does not have it.
 	 * <p>
 	 * An implementation that predates the capability, or the
 	 * {@link #PLURL_GET_CAPABILITY} operation itself, rejects the query; that is
-	 * reported here as <code>null</code>, because the absence of an answer is itself
-	 * the answer. Callers should treat <code>null</code> as "not supported" rather
-	 * than as an error. The type of the value is documented on each capability
-	 * constant.
+	 * reported here as an empty result, because the absence of an answer is itself
+	 * the answer. Callers should treat an empty result as "not supported" rather than
+	 * as an error. The type of the value is documented on each capability constant.
 	 * <p>
 	 * This is a convenience method for using the plurl protocol like this:
 	 *
@@ -361,18 +361,18 @@ public interface Plurl {
 	 * </pre>
 	 *
 	 * @param capability the name of the capability to check
-	 * @return the capability value, or <code>null</code> if the installed plurl
-	 *         implementation does not have it
+	 * @return the capability value, or an empty {@link Optional} if the installed
+	 *         plurl implementation does not have it
 	 * @see #PLURL_CAPABILITY_SELECT_BY_SPEC
 	 */
-	public static Object getCapability(String capability) {
+	public static Optional<Object> getCapability(String capability) {
 		try {
 			URL plurl = new URL(Plurl.PLURL_PROTOCOL, Plurl.PLURL_OP,
 					Plurl.PLURL_GET_CAPABILITY + '/' + capability);
-			return plurl.openConnection().getContent();
+			return Optional.ofNullable(plurl.openConnection().getContent());
 		} catch (IOException e) {
 			// No plurl installed, or one without this capability.
-			return null;
+			return Optional.empty();
 		}
 	}
 }

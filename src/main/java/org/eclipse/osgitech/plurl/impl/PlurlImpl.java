@@ -44,7 +44,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -710,7 +709,7 @@ public final class PlurlImpl implements Plurl {
 
 	/**
 	 * Returns the value of a capability this implementation has, as reported through
-	 * {@link Plurl#PLURL_GET_CAPABILITY}. A capability that is not recognised is
+	 * {@link Plurl#PLURL_GET_CAPABILITY}. A capability that is not recognized is
 	 * rejected rather than reported as absent, so that a caller can tell an older
 	 * plurl apart from one that answers.
 	 */
@@ -874,7 +873,7 @@ public final class PlurlImpl implements Plurl {
 		}
 		// Give the factories a chance to claim the URL being parsed first. A protocol
 		// may be shared by several factories that can only be told apart by the URL,
-		// and the URL may be used by a caller no factory recognises from the call
+		// and the URL may be used by a caller no factory recognizes from the call
 		// stack.
 		if (spec != null) {
 			for (F f : factories) {
@@ -913,37 +912,19 @@ public final class PlurlImpl implements Plurl {
 		return numFactories > 0 ? factories.get(0) : null;
 	}
 
-	boolean shouldHandleURL(Object f, String protocol, String spec) {
-		if (f instanceof PlurlStreamHandlerFactory) {
-			return ((PlurlStreamHandlerFactory) f).shouldHandleURL(protocol, spec);
-		}
-		// use reflection in case this Plurl package isn't visible to the factory impl,
-		// and tolerate factories that predate this method
-		Method m = findShouldHandleURL(f.getClass());
-		if (m == null) {
-			return false;
-		}
+	/**
+	 * The optional URL selection method of a factory, or <code>null</code> if it does
+	 * not have one. Unlike {@link #findShouldHandle(Class)} a missing method is not an
+	 * error, because a factory is not required to select on the URL.
+	 */
+	static Method findShouldHandleURL(Class<?> clazz) {
 		try {
-			return (boolean) m.invoke(f, protocol, spec);
-		} catch (Exception e) {
-			return false;
+			Method m = clazz.getMethod("shouldHandleURL", String.class, String.class); //$NON-NLS-1$
+			m.setAccessible(true);
+			return m;
+		} catch (NoSuchMethodException e) {
+			return null;
 		}
-	}
-
-	private final Map<Class<?>, Optional<Method>> shouldHandleURLMethods = new ConcurrentHashMap<>();
-
-	Method findShouldHandleURL(Class<?> clazz) {
-		// Cached: this is on the URL parsing path, and a missing method must not cost
-		// a reflective lookup and an exception every time.
-		return shouldHandleURLMethods.computeIfAbsent(clazz, (c) -> {
-			try {
-				Method m = c.getMethod("shouldHandleURL", String.class, String.class); //$NON-NLS-1$
-				m.setAccessible(true);
-				return Optional.of(m);
-			} catch (NoSuchMethodException e) {
-				return Optional.empty();
-			}
-		}).orElse(null);
 	}
 
 	Method findShouldHandle(Class<?> clazz) throws NoSuchMethodException {
@@ -1141,25 +1122,41 @@ public final class PlurlImpl implements Plurl {
 	}
 
 	public class URLStreamHandlerFactoryHolder extends PlurlFactoryHolder<URLStreamHandlerFactory, PlurlStreamHandler> {
+		private final Method shouldHandleURLMethod;
+
 		public URLStreamHandlerFactoryHolder(URLStreamHandlerFactory factory) {
 			super(factory);
+			if (factory instanceof PlurlStreamHandlerFactory) {
+				shouldHandleURLMethod = null;
+			} else {
+				// use reflection in case this Plurl package isn't visible to the
+				// factory impl; a factory that predates the method has none, which is
+				// not an error
+				shouldHandleURLMethod = findShouldHandleURL(factory.getClass());
+			}
 		}
 
 		/**
 		 * Delegates to the wrapped factory the way {@link #shouldHandle(Class)} does.
 		 * Without this, findFactory would only ever ask the holder, which has no
 		 * opinion of its own.
-		 * <p>
-		 * Unlike shouldHandle(Class) the method is not resolved in the constructor,
-		 * because a factory is not required to have it; it is looked up, and cached,
-		 * on first use.
 		 */
 		boolean shouldHandleURL(String protocol, String spec) {
 			URLStreamHandlerFactory f = getFactory();
 			if (f == null) {
 				return false;
 			}
-			return PlurlImpl.this.shouldHandleURL(f, protocol, spec);
+			if (f instanceof PlurlStreamHandlerFactory) {
+				return ((PlurlStreamHandlerFactory) f).shouldHandleURL(protocol, spec);
+			}
+			if (shouldHandleURLMethod == null) {
+				return false;
+			}
+			try {
+				return (boolean) shouldHandleURLMethod.invoke(f, protocol, spec);
+			} catch (Exception e) {
+				return false;
+			}
 		}
 
 		/**
