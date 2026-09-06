@@ -31,13 +31,22 @@ public interface PlurlStreamHandlerFactory extends URLStreamHandlerFactory, Plur
 	 * implement {@link PlurlStreamHandler} then deep reflection is required and the
 	 * JVM may require the "--add-opens" option in order to open the "java.net"
 	 * package for reflection. For example:
-	 * 
+	 *
 	 * <pre>
 	 * --add-opens java.base/java.net=ALL-UNNAMED
 	 * </pre>
-	 * 
+	 *
 	 * @see URLStreamHandlerFactory#createURLStreamHandler(String)
 	 */
 	@Override
 	URLStreamHandler createURLStreamHandler(String protocol);
+
+	/**
+	 * A copy of {@code PlurlStreamHandlerFactory#shouldHandleURL(String, String)},
+	 * so that a factory compiled against a different copy of the plurl package
+	 * exercises the reflective path.
+	 */
+	default boolean shouldHandleURL(String protocol, String spec) {
+		return false;
+	}
 }
