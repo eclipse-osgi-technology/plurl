@@ -61,9 +61,17 @@ public interface PlurlStreamHandlerFactory extends URLStreamHandlerFactory, Plur
 	 * factory that selects on the URL has nothing to decide with and should return
 	 * false; a relative URL resolved against a context URL keeps the context's handler
 	 * and does not reach this method.
+	 * <p>
+	 * The spec may also be <code>null</code>. That is the protocol level question,
+	 * asked before any URL exists, because the JVM asks a plurl implementation once
+	 * per protocol whether it handles that protocol at all and gives it no URL. A
+	 * factory that selects on the URL must answer <code>true</code> for a protocol
+	 * whose URLs it claims, or the protocol is never claimed from the JVM and no URL
+	 * of it is ever parsed. Implementations must therefore not assume a non-null spec.
 	 *
 	 * @param protocol the protocol of the URL being parsed
-	 * @param spec     the spec the URL is being parsed from, which may be relative
+	 * @param spec     the spec the URL is being parsed from, which may be relative,
+	 *                 or null when the question is about the protocol alone
 	 * @return true if this factory should handle the URL
 	 * @see Plurl#PLURL_CAPABILITY_SELECT_BY_SPEC
 	 */

@@ -45,6 +45,8 @@ public interface PlurlStreamHandlerFactory extends URLStreamHandlerFactory, Plur
 	 * A copy of {@code PlurlStreamHandlerFactory#shouldHandleURL(String, String)},
 	 * so that a factory compiled against a different copy of the plurl package
 	 * exercises the reflective path.
+	 * <p>
+	 * The spec may be <code>null</code>, which is the protocol level question.
 	 */
 	default boolean shouldHandleURL(String protocol, String spec) {
 		return false;

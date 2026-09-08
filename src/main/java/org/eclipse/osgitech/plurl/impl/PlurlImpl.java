@@ -566,21 +566,19 @@ public final class PlurlImpl implements Plurl {
 				}
 			}
 			List<URLStreamHandlerFactoryHolder> factories = getURLStreamHandlerFactories();
+			// A factory may claim this protocol by URL, which is decided per URL later
+			// in parseURL. The JVM asks us per protocol and gives us no URL, so ask the
+			// factories about the protocol alone first; otherwise a protocol only such
+			// a factory serves is declined here and the URL never gets that far.
+			for (URLStreamHandlerFactoryHolder holder : factories) {
+				if (holder.takesOverURLs(protocol) && holder.getHandler(protocol) != null) {
+					return new PlurlRootURLStreamHandler(protocol);
+				}
+			}
 			URLStreamHandlerFactoryHolder factoryHolder = findFactory(factories);
 			if (factoryHolder != null) {
 				PlurlStreamHandler shouldHandle = factoryHolder.getHandler(protocol);
 				if (shouldHandle != null) {
-					return new PlurlRootURLStreamHandler(protocol);
-				}
-			}
-			// The JVM asks per protocol and gives us no URL, so the factory the call
-			// stack points at is not necessarily the one that will serve the URL: a
-			// factory may claim this protocol by URL instead, which is only decided
-			// later, per URL, in parseURL. Claim the protocol if any factory that could
-			// take it over serves it, otherwise the URL never gets that far.
-			for (URLStreamHandlerFactoryHolder holder : factories) {
-				if (holder != factoryHolder && holder.takesOverURLs(protocol)
-						&& holder.getHandler(protocol) != null) {
 					return new PlurlRootURLStreamHandler(protocol);
 				}
 			}

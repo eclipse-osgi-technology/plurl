@@ -45,6 +45,12 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class PlurlURLSelectionTest {
 	static final String PROTOCOL = "plurlowner";
+	/**
+	 * Used by one test only. The JVM caches a handler per protocol for its lifetime,
+	 * so a protocol another test has already had claimed cannot be used to assert
+	 * anything about claiming it.
+	 */
+	static final String GATE_PROTOCOL = "plurlgateowner";
 
 	/**
 	 * Claims only the URLs whose host names it, and never claims by call stack, so
@@ -64,7 +70,9 @@ public class PlurlURLSelectionTest {
 
 		@Override
 		public boolean shouldHandleURL(String protocol, String spec) {
-			return PROTOCOL.equals(protocol) && owner.equals(hostOf(spec));
+			// A null spec is the protocol level question, asked before any URL exists:
+			// yes, URLs of this protocol are ours to select on.
+			return PROTOCOL.equals(protocol) && (spec == null || owner.equals(hostOf(spec)));
 		}
 
 		@Override
@@ -87,6 +95,27 @@ public class PlurlURLSelectionTest {
 		@Override
 		public URLStreamHandler createURLStreamHandler(String protocol) {
 			return PROTOCOL.equals(protocol) ? new OwnerHandler("predates") : null;
+		}
+	}
+
+	/**
+	 * Claims a protocol none of the other factories serve, by host, and answers the
+	 * protocol level question so the protocol is claimed from the JVM at all.
+	 */
+	static class GateOwnerFactory implements PlurlStreamHandlerFactory {
+		@Override
+		public boolean shouldHandle(Class<?> clazz) {
+			return false;
+		}
+
+		@Override
+		public boolean shouldHandleURL(String protocol, String spec) {
+			return GATE_PROTOCOL.equals(protocol) && (spec == null || "owner".equals(hostOf(spec)));
+		}
+
+		@Override
+		public URLStreamHandler createURLStreamHandler(String protocol) {
+			return GATE_PROTOCOL.equals(protocol) ? new OwnerHandler("gate") : null;
 		}
 	}
 
@@ -217,5 +246,27 @@ public class PlurlURLSelectionTest {
 	private static void removeRawFactory(URLStreamHandlerFactory f) throws IOException {
 		((Consumer<URLStreamHandlerFactory>) new URL(Plurl.PLURL_PROTOCOL, Plurl.PLURL_OP,
 				Plurl.PLURL_REMOVE_URL_STREAM_HANDLER_FACTORY).openConnection().getContent()).accept(f);
+	}
+
+	/**
+	 * The protocol has to be claimed from the JVM even when the factory plurl falls
+	 * back to does not serve it. plurl is asked for a handler once per protocol and
+	 * given no URL, so if it declines there, no URL of that protocol is ever parsed
+	 * and selection by URL never runs.
+	 * <p>
+	 * The factories registered before this one serve a different protocol, which is
+	 * the shape of another framework's factory in a shared JVM. This is why a factory
+	 * that selects on the URL has to answer the protocol level question: answering
+	 * false leaves the protocol unclaimed and the URL fails with "unknown protocol".
+	 */
+	@Test
+	public void protocolIsClaimedWhenTheFallbackFactoryDoesNotServeIt() throws IOException {
+		GateOwnerFactory gateOwner = new GateOwnerFactory();
+		Plurl.add(gateOwner);
+		try {
+			assertEquals("gate", new URL(GATE_PROTOCOL + "://owner/resource").getContent());
+		} finally {
+			Plurl.remove(gateOwner);
+		}
 	}
 }
